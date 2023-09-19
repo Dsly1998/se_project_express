@@ -56,35 +56,35 @@ exports.deleteItem = async (req, res) => {
 };
 
 exports.likeItem = async (req, res) => {
-    try {
-        const item = await ClothingItem.findByIdAndUpdate(
-            req.params.itemId,
-            { $addToSet: { likes: req.user._id } },
-            { new: true }
-        );
-        if (!item) {
-            return res.status(404).send({ message: "Item not found" });
-        }
-        res.json(item);
-    } catch (err) {
-        console.error("Error liking item:", err);
-        res.status(500).send({ message: "Error liking item" });
+  try {
+    const item = await ClothingItem.findByIdAndUpdate(
+      req.params.itemId,
+      { $addToSet: { likes: req.user._id } },
+      { new: true },
+    );
+    if (!item) {
+      return res.status(404).send({ message: "Item not found" });
     }
- };
- 
- exports.dislikeItem = async (req, res) => {
-    try {
-        const item = await ClothingItem.findByIdAndUpdate(
-            req.params.itemId,
-            { $pull: { likes: req.user._id } },
-            { new: true }
-        );
-        if (!item) {
-            return res.status(404).send({ message: "Item not found" });
-        }
-        res.json(item);
-    } catch (err) {
-        console.error("Error unliking item:", err);
-        res.status(500).send({ message: "Error unliking item" });
+    res.json(item);
+  } catch (err) {
+    console.error("Error liking item:", err);
+    res.status(500).send({ message: "Error liking item" });
+  }
+};
+
+exports.dislikeItem = async (req, res) => {
+  try {
+    const item = await ClothingItem.findByIdAndUpdate(
+      req.params.itemId,
+      { $pull: { likes: req.user._id } },
+      { new: true },
+    );
+    if (!item) {
+      return res.status(404).send({ message: "Item not found" });
     }
- };
+    res.json(item);
+  } catch (err) {
+    console.error("Error unliking item:", err);
+    res.status(500).send({ message: "Error unliking item" });
+  }
+};
