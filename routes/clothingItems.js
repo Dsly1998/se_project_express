@@ -5,7 +5,7 @@ const clothingItemsController = require('../controllers/clothingItems');
 router.get('/', clothingItemsController.getAllItems);
 router.post('/', clothingItemsController.createItem);
 router.delete('/:itemId', clothingItemsController.deleteItem);
-router.put('/items/:itemId/likes', clothingItemsController.likeItem);
-router.delete('/items/:itemId/likes', clothingItemsController.dislikeItem);
+router.put('/:itemId/likes', clothingItemsController.likeItem);
+router.delete('/:itemId/likes', clothingItemsController.dislikeItem);
 
 module.exports = router;

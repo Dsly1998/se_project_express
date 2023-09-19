@@ -65,7 +65,7 @@ exports.deleteItem = async (req, res) => {
 exports.likeItem = async (req, res) => {
   try {
     const item = await ClothingItem.findByIdAndUpdate(
-      req.params.itemId,
+      req.params.id,
       { $addToSet: { likes: req.user._id } },
       { new: true },
     );
