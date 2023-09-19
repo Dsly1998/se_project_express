@@ -1,5 +1,6 @@
 const ClothingItem = require("../models/clothingitem");
-const { INVALID_DATA, NOT_FOUND, SERVER_ERROR } = require("../utils/errors"); // Assuming you've created this utility
+const validator = require("validator"); // Importing the validator library
+const { INVALID_DATA, NOT_FOUND, SERVER_ERROR } = require("../utils/errors");
 
 // Fetches all clothing items
 exports.getAllItems = async (req, res) => {
@@ -14,11 +15,17 @@ exports.getAllItems = async (req, res) => {
 
 // Creates a new clothing item
 exports.createItem = async (req, res) => {
-  // Using the hardcoded user ID from middleware for the owner
   console.log(req.user._id);
 
   try {
     const { name, weather, imageUrl } = req.body;
+
+    // Check if the imageUrl is a valid URL
+    if (!validator.isURL(imageUrl)) {
+      return res
+        .status(INVALID_DATA)
+        .json({ message: "Invalid imageUrl format" });
+    }
 
     const newItem = new ClothingItem({
       name,
