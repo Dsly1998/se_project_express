@@ -48,17 +48,24 @@ exports.createItem = async (req, res) => {
 // Deletes a clothing item by its ID
 exports.deleteItem = async (req, res) => {
   try {
-    const item = await ClothingItem.findById(req.params.itemId).orFail(
-      new Error("Not found"),
-    );
+    const item = await ClothingItem.findById(req.params.itemId);
+
+    // If no item found, return a 404 Not Found response
+    if (!item) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+
     await item.remove();
     res.json({ message: "Item removed" });
   } catch (err) {
     console.error("Error deleting item:", err);
-    if (err.name === "CastError" || err.message === "Not found") {
-      return res.status(NOT_FOUND).send({ message: "Item not found" });
+
+    // Check if the error is due to an incorrect ID format
+    if (err.name === "CastError") {
+      return res.status(400).send({ message: "Incorrect item ID format" });
     }
-    res.status(SERVER_ERROR).send({ message: "Error deleting item" });
+
+    res.status(500).send({ message: "Error deleting item" });
   }
 };
 
@@ -74,24 +81,38 @@ exports.likeItem = async (req, res) => {
     }
     res.json(item);
   } catch (err) {
+    console.log(err.name);
+    if (err.name === "CastError") {
+      return res.status(400).send({ message: "ID DONT KNOW THW" });
+    }
     console.error("Error liking item:", err);
-    res.status(500).send({ message: "Error liking item" });
+    return res.status(500).send({ message: "Error liking item" });
   }
 };
 
 exports.dislikeItem = async (req, res) => {
   try {
-    const item = await ClothingItem.findByIdAndUpdate(
+    console.log(req.params);
+    const item = await ClothingItem.findById(req.params.id);
+    if (!item) {
+      return res.status(404).send({ message: "Item not found" });
+    }
+
+    await ClothingItem.findByIdAndUpdate(
       req.params.itemId,
       { $pull: { likes: req.user._id } },
       { new: true },
     );
-    if (!item) {
-      return res.status(404).send({ message: "Item not found" });
-    }
+
     res.json(item);
   } catch (err) {
     console.error("Error unliking item:", err);
+
+    // Check if the error is due to an incorrect ID format
+    if (err.name === "CastError") {
+      return res.status(400).send({ message: "Incorrect item ID format" });
+    }
+
     res.status(500).send({ message: "Error unliking item" });
   }
 };
