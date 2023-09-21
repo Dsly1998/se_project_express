@@ -1,6 +1,8 @@
-const ClothingItem = require("../models/clothingitem");
 const validator = require("validator"); // Importing the validator library
-const { INVALID_DATA, NOT_FOUND, SERVER_ERROR } = require("../utils/errors");
+const ClothingItem = require("../models/clothingitem");
+const { SERVER_ERROR } = require("../utils/errors"); // Import the constant from errors.js
+const INVALID_DATA = "Some error message";
+const NOT_FOUND = "Not found error message";
 
 // Fetches all clothing items
 exports.getAllItems = async (req, res) => {
@@ -11,12 +13,12 @@ exports.getAllItems = async (req, res) => {
     console.error("Error fetching items:", err);
     res.status(SERVER_ERROR).send({ message: "Error fetching items" });
   }
+  return;  // Add this
 };
+
 
 // Creates a new clothing item
 exports.createItem = async (req, res) => {
-  console.log(req.user._id);
-
   try {
     const { name, weather, imageUrl } = req.body;
 
@@ -81,7 +83,6 @@ exports.likeItem = async (req, res) => {
     }
     res.json(item);
   } catch (err) {
-    console.log(err.name);
     if (err.name === "CastError") {
       return res.status(400).send({ message: "ID DONT KNOW THW" });
     }
@@ -92,17 +93,16 @@ exports.likeItem = async (req, res) => {
 
 exports.dislikeItem = async (req, res) => {
   try {
-    console.log(req.params);
-    const item = await ClothingItem.findById(req.params.id);
-    if (!item) {
-      return res.status(404).send({ message: "Item not found" });
-    }
-
-    await ClothingItem.findByIdAndUpdate(
-      req.params.itemId,
+    // Using the findByIdAndUpdate method directly, which will also check if the item exists
+    const item = await ClothingItem.findByIdAndUpdate(
+      req.params.id, // Using the correct parameter name
       { $pull: { likes: req.user._id } },
-      { new: true },
+      { new: true, upsert: false }, // Do not create a new item if it doesn't exist, and return the updated item
     );
+
+    if (!item) {
+      return res.status(NOT_FOUND).send({ message: "Item not found" });
+    }
 
     res.json(item);
   } catch (err) {
@@ -110,9 +110,11 @@ exports.dislikeItem = async (req, res) => {
 
     // Check if the error is due to an incorrect ID format
     if (err.name === "CastError") {
-      return res.status(400).send({ message: "Incorrect item ID format" });
+      return res
+        .status(INVALID_DATA)
+        .send({ message: "Incorrect item ID format" });
     }
 
-    res.status(500).send({ message: "Error unliking item" });
+    res.status(SERVER_ERROR).send({ message: "Error unliking item" });
   }
 };

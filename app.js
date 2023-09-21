@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const { NOT_FOUND, SERVER_ERROR } = require('./utils/errors'); // Import the error codes from errors.js
 
 const { PORT = 3001 } = process.env;
 const app = express();
@@ -13,9 +14,7 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => {
-    console.log("Connected to MongoDB");
-  })
+  .then(() => {})
   .catch((err) => {
     console.error("Failed to connect to MongoDB", err);
   });
@@ -35,19 +34,17 @@ app.use("/items", require("./routes/clothingItems"));
 
 // Catch-all route handler for non-existent resources
 app.use((req, res) => {
-  res.status(404).send({ message: "Requested resource not found" });
+  res.status(NOT_FOUND).send({ message: "Requested resource not found" });
 });
 
 // Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT, () => {});
 
+// Error handling middleware
 app.use((error, req, res, next) => {
-    const statusCode = error.statusCode || 500;
-    const message = error.message || 'An error has occurred on the server.';
-    res.status(statusCode).json({ message: message });
+  const statusCode = error.statusCode || SERVER_ERROR;
+  const message = error.message || "An error has occurred on the server.";
+  res.status(statusCode).json({ message });
 });
-
 
 module.exports = app; // This is useful for testing and other imports if needed later.

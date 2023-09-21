@@ -1,14 +1,16 @@
 const validator = require('validator');
 const User = require('../models/user');
+const { SERVER_ERROR } = require('../utils/errors'); // Import the necessary constant
 
 exports.getUsers = async (req, res) => {
   try {
     const users = await User.find();
     res.json(users);
   } catch (err) {
-    res.status(500).send({ message: "Server Error" });
+    res.status(SERVER_ERROR).send({ message: "Server Error" });
   }
 };
+
 
 exports.getUser = async (req, res) => {
     try {
