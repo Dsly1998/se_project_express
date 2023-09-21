@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const { NOT_FOUND, SERVER_ERROR } = require('./utils/errors'); // Import the error codes from errors.js
+const { NOT_FOUND, SERVER_ERROR } = require("./utils/errors");
 
 const { PORT = 3001 } = process.env;
 const app = express();
@@ -22,12 +22,12 @@ mongoose
 // Temporary authorization middleware
 app.use((req, res, next) => {
   req.user = {
-    _id: "6508a7ecca0067f91261f918", // This is just a placeholder, replace with your actual test user's _id
+    _id: "6508a7ecca0067f91261f918",
   };
   next();
 });
 
-// Route
+// Routes
 app.use(express.json());
 app.use("/users", require("./routes/users"));
 app.use("/items", require("./routes/clothingItems"));
@@ -41,10 +41,11 @@ app.use((req, res) => {
 app.listen(PORT, () => {});
 
 // Error handling middleware
+// eslint-disable-next-line no-unused-vars
 app.use((error, req, res, next) => {
   const statusCode = error.statusCode || SERVER_ERROR;
   const message = error.message || "An error has occurred on the server.";
   res.status(statusCode).json({ message });
 });
 
-module.exports = app; // This is useful for testing and other imports if needed later.
+module.exports = app;
