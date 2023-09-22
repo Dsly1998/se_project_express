@@ -1,9 +1,8 @@
 const validator = require("validator");
 const ClothingItem = require("../models/clothingItem");
-const { SERVER_ERROR } = require("../utils/errors");
+const { SERVER_ERROR, BAD_REQUEST, NOT_FOUND } = require("../utils/errors");
 
-const INVALID_DATA = "Some error message";
-const NOT_FOUND = "Not found error message";
+// const INVALID_DATA = "Some error message";  // No longer necessary
 
 exports.getAllItems = async (req, res) => {
   try {
@@ -19,7 +18,7 @@ exports.createItem = async (req, res) => {
     const { name, weather, imageUrl } = req.body;
     if (!validator.isURL(imageUrl)) {
       return res
-        .status(INVALID_DATA)
+        .status(BAD_REQUEST)
         .json({ message: "Invalid imageUrl format" });
     }
 
@@ -34,7 +33,7 @@ exports.createItem = async (req, res) => {
     return res.status(201).json(newItem);
   } catch (err) {
     if (err.name === "ValidationError") {
-      return res.status(INVALID_DATA).send({ message: err.message });
+      return res.status(BAD_REQUEST).send({ message: err.message });
     }
     return res.status(SERVER_ERROR).send({ message: "Error creating item" });
   }
@@ -44,13 +43,15 @@ exports.deleteItem = async (req, res) => {
   try {
     const item = await ClothingItem.findById(req.params.itemId);
     if (!item) {
-      return res.status(404).json({ message: "Item not found" });
+      return res.status(NOT_FOUND).json({ message: "Item not found" });
     }
     await item.remove();
     return res.json({ message: "Item removed" });
   } catch (err) {
     if (err.name === "CastError") {
-      return res.status(400).send({ message: "Incorrect item ID format" });
+      return res
+        .status(BAD_REQUEST)
+        .send({ message: "Incorrect item ID format" });
     }
     return res.status(SERVER_ERROR).send({ message: "Error deleting item" });
   }
@@ -64,12 +65,14 @@ exports.likeItem = async (req, res) => {
       { new: true },
     );
     if (!item) {
-      return res.status(404).send({ message: "Item not found" });
+      return res.status(NOT_FOUND).send({ message: "Item not found" });
     }
     return res.json(item);
   } catch (err) {
     if (err.name === "CastError") {
-      return res.status(400).send({ message: "Invalid item ID format" });
+      return res
+        .status(BAD_REQUEST)
+        .send({ message: "Invalid item ID format" });
     }
     return res.status(SERVER_ERROR).send({ message: "Error liking item" });
   }
@@ -89,7 +92,7 @@ exports.dislikeItem = async (req, res) => {
   } catch (err) {
     if (err.name === "CastError") {
       return res
-        .status(INVALID_DATA)
+        .status(BAD_REQUEST)
         .send({ message: "Incorrect item ID format" });
     }
     return res.status(SERVER_ERROR).send({ message: "Error unliking item" });
