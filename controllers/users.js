@@ -1,6 +1,9 @@
 const validator = require("validator");
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require("../models/user");
 const { SERVER_ERROR, BAD_REQUEST, NOT_FOUND } = require("../utils/errors");
+const { JWT_SECRET } = require("../utils/config");
 
 exports.getUsers = async (req, res) => {
   try {
@@ -18,9 +21,7 @@ exports.getUser = async (req, res) => {
     return res.json(user);
   } catch (err) {
     if (err.kind === "ObjectId") {
-      return res
-        .status(BAD_REQUEST)
-        .json({ message: "Invalid user ID format" });
+      return res.status(BAD_REQUEST).json({ message: "Invalid user ID format" });
     }
     return res.status(SERVER_ERROR).send({ message: "Server Error" });
   }
@@ -28,21 +29,48 @@ exports.getUser = async (req, res) => {
 
 exports.createUser = async (req, res) => {
   try {
-    const { name, avatar } = req.body;
+    const { name, avatar, email, password } = req.body;
 
+    // Validate avatar URL
     if (!validator.isURL(avatar)) {
-      return res
-        .status(BAD_REQUEST)
-        .send({ message: "Invalid URL for avatar." });
+      return res.status(BAD_REQUEST).send({ message: "Invalid URL for avatar." });
     }
 
-    const newUser = new User({ name, avatar });
+    // Check if a user already exists with this email
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(BAD_REQUEST).send({ message: 'User with this email already exists.' });
+    }
+
+    // Hash the password before saving it to the database
+    const hashedPassword = await bcrypt.hash(password, 8);
+
+    // Create the user with the hashed password
+    const newUser = new User({ name, avatar, email, password: hashedPassword });
     await newUser.save();
     return res.status(201).json(newUser);
+    
   } catch (err) {
+    if (err.code === 11000) {
+      return res.status(BAD_REQUEST).send({ message: 'User with this email already exists.' });
+    }
     if (err.name === "ValidationError") {
       return res.status(BAD_REQUEST).send({ message: err.message });
     }
     return res.status(SERVER_ERROR).send({ message: "Server Error" });
+  }
+};
+
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findUserByCredentials(email, password);
+    
+    const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" });
+    
+    return res.status(200).send({ token });
+    
+  } catch (err) {
+    return res.status(401).send({ message: 'Invalid login credentials' });
   }
 };
