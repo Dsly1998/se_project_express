@@ -74,3 +74,49 @@ exports.login = async (req, res) => {
     return res.status(401).send({ message: 'Invalid login credentials' });
   }
 };
+
+exports.getCurrentUser = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId).select('-password'); // Excludes password when fetching
+
+    if (!user) {
+      return res.status(NOT_FOUND).json({ message: "User not found" });
+    }
+
+    return res.json(user);
+  } catch (err) {
+    if (err.kind === "ObjectId") {
+      return res.status(BAD_REQUEST).json({ message: "Invalid user ID format" });
+    }
+    return res.status(SERVER_ERROR).send({ message: "Server Error" });
+  }
+};
+
+exports.updateCurrentUser = async (req, res) => {
+  try {
+    const updates = Object.keys(req.body);
+    const allowedUpdates = ['name', 'avatar', 'email', 'password'];
+    const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
+
+    if (!isValidOperation) {
+      return res.status(BAD_REQUEST).send({ message: 'Invalid updates!' });
+    }
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(NOT_FOUND).send({ message: 'User not found' });
+    }
+
+    updates.forEach((update) => user[update] = req.body[update]);
+    await user.save({ validateBeforeSave: true });
+
+    return res.status(200).json(user);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      return res.status(BAD_REQUEST).send({ message: err.message });
+    }
+    return res.status(SERVER_ERROR).send({ message: 'Internal server error' });
+  }
+};

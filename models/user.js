@@ -36,6 +36,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true,
     minlength: 7,
+    select: false,  // Make sure the password isn't returned by default
     validate(value) {
       if (value.toLowerCase().includes('password')) {
         throw new Error('Password should not contain the word "password"');
@@ -45,7 +46,9 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.statics.findUserByCredentials = async function(email, password) {
-  const user = await this.findOne({ email });
+  // Explicitly request the password field when fetching the user
+  const user = await this.findOne({ email }).select('+password');
+  
   if (!user) {
     throw new Error('Unable to login');
   }

@@ -45,6 +45,12 @@ exports.deleteItem = async (req, res) => {
     if (!item) {
       return res.status(NOT_FOUND).json({ message: "Item not found" });
     }
+    
+    // Check if the logged-in user's ID matches the item's owner ID
+    if (item.owner.toString() !== req.user._id) {
+      return res.status(FORBIDDEN).json({ message: "You are not allowed to delete this item." });
+    }
+
     await item.remove();
     return res.json({ message: "Item removed" });
   } catch (err) {
