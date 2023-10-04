@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
-const bcrypt = require('bcryptjs');
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -27,35 +27,38 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate(value) {
       if (!validator.isEmail(value)) {
-        throw new Error('Email is invalid');
+        throw new Error("Email is invalid");
       }
-    }
+    },
   },
   password: {
     type: String,
     required: true,
     trim: true,
     minlength: 7,
-    select: false,  // Make sure the password isn't returned by default
+    select: false, // Make sure the password isn't returned by default
     validate(value) {
-      if (value.toLowerCase().includes('password')) {
+      if (value.toLowerCase().includes("password")) {
         throw new Error('Password should not contain the word "password"');
       }
-    }
-  }
+    },
+  },
 });
 
-userSchema.statics.findUserByCredentials = async function(email, password) {
+userSchema.statics.findUserByCredentials = async function findUserByCredentials(
+  email,
+  password,
+) {
   // Explicitly request the password field when fetching the user
-  const user = await this.findOne({ email }).select('+password');
-  
+  const user = await this.findOne({ email }).select("+password");
+
   if (!user) {
-    throw new Error('Unable to login');
+    throw new Error("Unable to login");
   }
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
-    throw new Error('Unable to login');
+    throw new Error("Unable to login");
   }
 
   return user;

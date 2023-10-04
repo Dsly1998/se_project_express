@@ -1,1 +1,1 @@
-exports.JWT_SECRET = 'YourSuperSecretKey'; 
+exports.JWT_SECRET = "YourSuperSecretKey";

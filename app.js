@@ -1,8 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const { NOT_FOUND, SERVER_ERROR } = require("./utils/errors");
-const authMiddleware = require('./middlewares/auth');  // Import the authorization middleware
 const cors = require("cors");
+const { SERVER_ERROR, NOT_FOUND } = require("./utils/errors");
+const authMiddleware = require("./middlewares/auth"); // Import the authorization middleware
 
 const { PORT = 3001 } = process.env;
 const app = express();
@@ -11,29 +11,29 @@ app.use(cors());
 // Middleware to parse JSON requests
 app.use(express.json());
 
-app.use(authMiddleware);
-
 // Connect to MongoDB
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("Connected to MongoDB"))
+  .then(() => {
+    // eslint-disable-next-line no-console
+    console.log("Connected to MongoDB");
+  })
   .catch((err) => {
+    // eslint-disable-next-line no-console
     console.error("Failed to connect to MongoDB", err);
   });
 
-// Routes
+// Routes that don't require authentication
 app.use("/items", require("./routes/clothingItems"));
+app.use(require("./routes"));
 
-// Centralized routes which include /signin and /signup
-app.use(require('./routes'));
-
-// Apply auth middleware for the routes that require authentication
+// Apply auth middleware only to the routes that require authentication
 app.use(authMiddleware);
 
-// Other routes that require authentication
+// Routes that require authentication
 app.use("/users", require("./routes/users"));
 
 // Catch-all route handler for non-existent resources
@@ -50,8 +50,6 @@ app.use((error, req, res, next) => {
 });
 
 // Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => {});
 
 module.exports = app;

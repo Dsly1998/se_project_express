@@ -1,6 +1,11 @@
 const validator = require("validator");
 const ClothingItem = require("../models/clothingItem");
-const { SERVER_ERROR, BAD_REQUEST, NOT_FOUND } = require("../utils/errors");
+const {
+  SERVER_ERROR,
+  BAD_REQUEST,
+  NOT_FOUND,
+  FORBIDDEN,
+} = require("../utils/errors");
 
 // const INVALID_DATA = "Some error message";  // No longer necessary
 
@@ -45,13 +50,12 @@ exports.deleteItem = async (req, res) => {
     if (!item) {
       return res.status(NOT_FOUND).json({ message: "Item not found" });
     }
-    
-    console.log("Logged-in user's ID:", req.user._id);
-    console.log("Item's owner ID:", item.owner);
 
     // Check if the logged-in user's ID matches the item's owner ID
     if (item.owner.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "You are not allowed to delete this item." });
+      return res
+        .status(FORBIDDEN)
+        .json({ message: "You are not allowed to delete this item." });
     }
 
     await item.remove();
@@ -65,7 +69,6 @@ exports.deleteItem = async (req, res) => {
     return res.status(SERVER_ERROR).send({ message: "Error deleting item" });
   }
 };
-
 
 exports.likeItem = async (req, res) => {
   try {

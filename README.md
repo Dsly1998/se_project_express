@@ -1,5 +1,17 @@
 # WTWR (What to Wear?): Back End
-project back end api set up
+Clothing Items Backend
+A comprehensive backend service to manage clothing items, allowing users to like items, create items, and more. This backend is built using Node.js, Express.js, and MongoDB.
+
+Features
+User authentication and authorization using JWT.
+CRUD operations for clothing items.
+Functionality to like and dislike items.
+Efficient error handling and validation.
+Getting Started
+Prerequisites
+Node.js
+MongoDB
+npm or yarn
 ## Running the Project
 `npm run start` — to launch the server 
 
