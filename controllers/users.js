@@ -39,7 +39,8 @@ exports.createUser = async (req, res) => {
     // Check if a user already exists with this email
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(BAD_REQUEST).send({ message: 'User with this email already exists.' });
+      // Return 409 Conflict if the email already exists
+      return res.status(409).send({ message: 'User with this email already exists.' });
     }
 
     // Hash the password before saving it to the database
@@ -48,11 +49,16 @@ exports.createUser = async (req, res) => {
     // Create the user with the hashed password
     const newUser = new User({ name, avatar, email, password: hashedPassword });
     await newUser.save();
-    return res.status(201).json(newUser);
+
+    // Convert user to object and delete the password before sending
+    const userResponse = newUser.toObject();
+    delete userResponse.password;
+
+    return res.status(201).json(userResponse);
     
   } catch (err) {
     if (err.code === 11000) {
-      return res.status(BAD_REQUEST).send({ message: 'User with this email already exists.' });
+      return res.status(409).send({ message: 'User with this email already exists.' });
     }
     if (err.name === "ValidationError") {
       return res.status(BAD_REQUEST).send({ message: err.message });
@@ -61,6 +67,7 @@ exports.createUser = async (req, res) => {
   }
 };
 
+
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -68,12 +75,13 @@ exports.login = async (req, res) => {
     
     const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" });
     
+    // Send the token in the response body
     return res.status(200).send({ token });
-    
   } catch (err) {
     return res.status(401).send({ message: 'Invalid login credentials' });
   }
 };
+
 
 exports.getCurrentUser = async (req, res) => {
   try {

@@ -1,21 +1,20 @@
 const jwt = require('jsonwebtoken');
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here'; // Make sure to use an environment variable for this in a real-world application!
+const { JWT_SECRET } = require('../utils/config');
 
 module.exports = (req, res, next) => {
-    const { authorization } = req.headers;
+  const authorization = req.header('Authorization');
 
-    if (!authorization) {
-        return res.status(401).send({ message: 'Authorization required' });
-    }
+  if (!authorization || !authorization.startsWith('Bearer ')) {
+    return res.status(401).send({ message: 'Authentication required' });
+  }
 
-    const token = authorization.replace("Bearer ", "");
+  const token = authorization.replace('Bearer ', '');
 
-    try {
-        const payload = jwt.verify(token, JWT_SECRET);
-        req.user = payload;
-        next();
-    } catch (err) {
-        res.status(401).send({ message: 'Invalid token' });
-    }
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    req.user = payload;
+    next();
+  } catch (e) {
+    return res.status(401).send({ message: 'Invalid token' });
+  }
 };

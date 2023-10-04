@@ -46,9 +46,12 @@ exports.deleteItem = async (req, res) => {
       return res.status(NOT_FOUND).json({ message: "Item not found" });
     }
     
+    console.log("Logged-in user's ID:", req.user._id);
+    console.log("Item's owner ID:", item.owner);
+
     // Check if the logged-in user's ID matches the item's owner ID
-    if (item.owner.toString() !== req.user._id) {
-      return res.status(FORBIDDEN).json({ message: "You are not allowed to delete this item." });
+    if (item.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "You are not allowed to delete this item." });
     }
 
     await item.remove();
@@ -62,6 +65,7 @@ exports.deleteItem = async (req, res) => {
     return res.status(SERVER_ERROR).send({ message: "Error deleting item" });
   }
 };
+
 
 exports.likeItem = async (req, res) => {
   try {
