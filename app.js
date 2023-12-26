@@ -3,9 +3,14 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const { SERVER_ERROR, NOT_FOUND } = require("./utils/errors");
 const authMiddleware = require("./middlewares/auth"); // Import the authorization middleware
+const errorHandler = require('./middlewares/error-handler');
+
 
 const { PORT = 3001 } = process.env;
 const app = express();
+
+
+app.use(errorHandler);
 
 app.use(cors());
 // Middleware to parse JSON requests

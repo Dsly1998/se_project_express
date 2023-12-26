@@ -17,4 +17,7 @@ module.exports = {
     ],
     // Any additional custom rules can be added here
   },
+  rules: {
+    "no-unused-vars": ["error", { argsIgnorePattern: "next" }],
+  },
 };
