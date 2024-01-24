@@ -1,20 +1,28 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const { SERVER_ERROR, NOT_FOUND } = require("./utils/errors");
-const authMiddleware = require("./middlewares/auth"); // Import the authorization middleware
+const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { errors } = require('celebrate'); // Import this only if you are using the 'celebrate' package
+const authMiddleware = require("./middlewares/auth");
 const errorHandler = require('./middlewares/error-handler');
+const routes = require('./routes'); // Make sure this correctly points to your central route file
+const { SERVER_ERROR, NOT_FOUND } = require("./utils/errors");
 
-
-const { PORT = 3001 } = process.env;
+const { PORT = 3001, MONGO_URI = "mongodb://127.0.0.1:27017/wtwr_db" } = process.env;
 const app = express();
 
-
-app.use(errorHandler);
-
-app.use(cors());
 // Middleware to parse JSON requests
 app.use(express.json());
+app.use(cors());
+
+// our routes
+app.use(routes);
+
+// Using the request logger
+app.use(requestLogger);
+app.use(errorLogger)
+app.use(errors());
+app.use(errorHandler); 
 
 // Connect to MongoDB
 mongoose
