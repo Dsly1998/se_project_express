@@ -1,53 +1,60 @@
-// app.js
-const express = require('express');
-const { errors } = require('celebrate');
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const { SERVER_ERROR, NOT_FOUND } = require("./utils/errors");
+const authMiddleware = require("./middlewares/auth"); // Import the authorization middleware
+const errorHandler = require('./middlewares/error-handler');
 
-// Import your routes here
-const userRoutes = require('./routes/users.js');
-const itemRoutes = require('./routes/clothingItems');
 
+const { PORT = 3001 } = process.env;
 const app = express();
 
-// Middlewares for parsing request bodies
+
+app.use(errorHandler);
+
+app.use(cors());
+// Middleware to parse JSON requests
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Setup routes
- app.use('/users', userRoutes);
- app.use('/items', itemRoutes);
-
-// Celebrate error handling middleware
-app.use(errors());
-
-// Centralized error handler
-app.use((err, req, res, next) => {
-  if (!err) {
-    return next();
-  }
-
-  let statusCode = err.statusCode || 500;
-  let message = err.message || 'An unexpected error occurred';
-
-  // If the error is a Celebrate error, customize the response
-  if (err.isCelebrate) {
-    statusCode = 400;
-    message = 'Validation failed';
-    const details = err.details.get('body') || err.details.get('params') || err.details.get('query');
-    if (details) {
-      message = details.message;
-    }
-  }
-
-  res.status(statusCode).json({
-    status: 'error',
-    message: message,
+// Connect to MongoDB
+mongoose
+  .connect("mongodb://127.0.0.1:27017/wtwr_db", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    // eslint-disable-next-line no-console
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error("Failed to connect to MongoDB", err);
   });
+
+// Routes that don't require authentication
+app.use("/items", require("./routes/clothingItems"));
+app.use(require("./routes"));
+
+// Apply auth middleware only to the routes that require authentication
+app.use(authMiddleware);
+
+// Routes that require authentication
+app.use("/users", require("./routes/users"));
+
+// Catch-all route handler for non-existent resources
+app.use((req, res) => {
+  res.status(NOT_FOUND).send({ message: "Requested resource not found" });
+});
+
+// Error handling middleware
+// eslint-disable-next-line no-unused-vars
+app.use((error, req, res, next) => {
+  const statusCode = error.statusCode || SERVER_ERROR;
+  const message = error.message || "An error has occurred on the server.";
+  res.status(statusCode).json({ message });
 });
 
 // Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => {});
 
-module.exports = app; // Exporting for testing purposes
+module.exports = app;
