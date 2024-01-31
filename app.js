@@ -65,4 +65,10 @@ app.use((error, req, res, next) => {
 // Start the server
 app.listen(PORT, () => {});
 
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Server will crash now');
+  }, 0);
+});
+
 module.exports = app;
