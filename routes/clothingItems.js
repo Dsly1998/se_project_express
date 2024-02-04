@@ -1,5 +1,4 @@
 const express = require("express");
-
 const router = express.Router();
 const clothingItemsController = require("../controllers/clothingItems");
 const authMiddleware = require("../middlewares/auth"); // Import the auth middleware

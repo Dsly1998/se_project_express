@@ -35,7 +35,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    minlength: 7,
     select: false, // Make sure the password isn't returned by default
     validate(value) {
       if (value.toLowerCase().includes("password")) {
