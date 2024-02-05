@@ -66,6 +66,7 @@ app.use((req, res) => {
 // Error handling middleware
 // eslint-disable-next-line no-unused-vars
 app.use((error, req, res, next) => {
+  console.error(error);
   const statusCode = error.statusCode || SERVER_ERROR;
   const message = error.message || "An error has occurred on the server.";
   res.status(statusCode).json({ message });
