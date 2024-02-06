@@ -41,7 +41,7 @@ exports.createItem = async (req, res, next) => {
 
 exports.deleteItem = async (req, res, next) => {
   try {
-    const item = await ClothingItem.findById(req.params.itemId);
+    const item = await ClothingItem.findById(req.params.id);
     if (!item) {
       throw new NotFoundError("Item not found");
     }
