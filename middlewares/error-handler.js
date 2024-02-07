@@ -5,7 +5,7 @@ const NotFoundError = require("./NotFoundError");
 const ConflictError = require("./ConflictError");
 const ServerError = require("./ServerError"); // Import ServerError
 
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res) => {
   // Log the error along with additional request information for better debugging
   console.error("Error:", err);
   console.error("Error occurred in route:", req.path);
@@ -29,7 +29,7 @@ const errorHandler = (err, req, res, next) => {
   const message = "Internal Server Error"; // Default message for unknown errors
 
   // Send the error response
-  res.status(statusCode).json({ message: message });
+  return res.status(statusCode).json({ message });
 };
 
 module.exports = errorHandler;

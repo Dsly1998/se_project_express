@@ -1,12 +1,12 @@
-const { Joi, celebrate } = require('celebrate');
-const validator = require('validator');
+const { Joi, celebrate } = require("celebrate");
+const validator = require("validator");
 
 // Custom URL validation function
 const validateURL = (value, helpers) => {
   if (validator.isURL(value)) {
     return value;
   }
-  return helpers.error('string.uri');
+  return helpers.error("string.uri");
 };
 
 // Validation for clothing item creation
@@ -21,8 +21,9 @@ module.exports.validateCardBody = celebrate({
       "string.empty": 'The "imageUrl" field must be filled in',
       "string.uri": 'The "imageUrl" field must be a valid URL',
     }),
-    weather: Joi.string().valid('hot', 'warm', 'cold').required().messages({
-      "any.only": 'The "weather" field must be one of the following values: hot, warm, cold',
+    weather: Joi.string().valid("hot", "warm", "cold").required().messages({
+      "any.only":
+        'The "weather" field must be one of the following values: hot, warm, cold',
       "string.empty": 'The "weather" field must be filled in',
     }),
   }),

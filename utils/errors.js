@@ -10,7 +10,7 @@ const UNAUTHORIZED = 401;
 // ... (other constants or exports you might have in this file)
 
 module.exports = {
-  ...module.exports, 
+  ...module.exports,
   NOT_FOUND,
   SERVER_ERROR,
   BAD_REQUEST,

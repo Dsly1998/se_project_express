@@ -15,9 +15,7 @@ module.exports = {
         allow: ["_id"], // Allowing _id (commonly used in MongoDB)
       },
     ],
-    // Any additional custom rules can be added here
-  },
-  rules: {
     "no-unused-vars": ["error", { argsIgnorePattern: "next" }],
+    // Any additional custom rules can be added here
   },
 };

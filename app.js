@@ -2,15 +2,15 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const { requestLogger, errorLogger } = require("./middlewares/logger");
 const { errors } = require("celebrate"); // Import this only if you are using the 'celebrate' package
+const { requestLogger, errorLogger } = require("./middlewares/logger");
 const authMiddleware = require("./middlewares/auth");
 const errorHandler = require("./middlewares/error-handler");
 const routes = require("./routes"); // Make sure this correctly points to your central route file
 const { SERVER_ERROR, NOT_FOUND } = require("./utils/errors");
 
-const { PORT = 3001, MONGO_URI = "mongodb://127.0.0.1:27017/wtwr_db" } =
-  process.env;
+const PORT = process.env.PORT || 3001;
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/wtwr_db";
 const app = express();
 
 // Middleware to parse JSON requests
@@ -35,10 +35,11 @@ app.use(errorHandler);
 
 // Connect to MongoDB
 mongoose
-  .connect("mongodb://127.0.0.1:27017/wtwr_db", {
+  .connect(MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
+
   .then(() => {
     // eslint-disable-next-line no-console
     console.log("Connected to MongoDB");

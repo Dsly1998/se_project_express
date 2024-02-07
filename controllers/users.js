@@ -83,8 +83,9 @@ exports.updateCurrentUser = async (req, res, next) => {
     if (!user) {
       throw new NotFoundError("User not found");
     }
-
-    updates.forEach((update) => (user[update] = req.body[update]));
+    updates.forEach((update) => {
+      user[update] = req.body[update];
+    });
     await user.save();
 
     res.status(200).json(user);
