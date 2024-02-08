@@ -26,6 +26,6 @@ Before committing your code, make sure you edit the file `sprint.txt` in the roo
 
 ## Subdomain
 
-`apittwtwr.crabdance.com`
-`www.ttwtwr.crabdance.com`
-`ttwtwr.crabdance.com`
+`apittwtwr.ignorelist.com`
+`www.ttwtwr.ignorelist.com`
+`ttwtwr.ignorelist.com`
