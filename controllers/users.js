@@ -69,7 +69,6 @@ exports.getCurrentUser = async (req, res, next) => {
   }
 };
 
-
 exports.updateCurrentUser = async (req, res, next) => {
   try {
     const updates = Object.keys(req.body);

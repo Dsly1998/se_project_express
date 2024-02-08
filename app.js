@@ -4,10 +4,9 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const { errors } = require("celebrate");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
-const authMiddleware = require("./middlewares/auth");
 const errorHandler = require("./middlewares/error-handler");
 const routes = require("./routes");
-const { SERVER_ERROR, NOT_FOUND } = require("./utils/errors");
+const { NOT_FOUND } = require("./utils/errors");
 
 const PORT = process.env.PORT || 3001;
 const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/wtwr_db";
@@ -32,12 +31,13 @@ app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
 
-mongoose.connect(MONGO_URI, {
+mongoose
+  .connect(MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
   .then(() => console.log("Connected to MongoDB"))
-  .catch(err => console.error("Failed to connect to MongoDB", err));
+  .catch((err) => console.error("Failed to connect to MongoDB", err));
 
 // Catch-all route handler for non-existent resources
 app.use((req, res) => {
