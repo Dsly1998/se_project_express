@@ -61,11 +61,14 @@ exports.getCurrentUser = async (req, res, next) => {
   } catch (err) {
     if (err.kind === "ObjectId") {
       next(new BadRequestError("Invalid user ID format"));
+    } else if (err instanceof NotFoundError) {
+      next(err);
     } else {
       next(new ServerError("Server Error"));
     }
   }
 };
+
 
 exports.updateCurrentUser = async (req, res, next) => {
   try {
@@ -92,6 +95,8 @@ exports.updateCurrentUser = async (req, res, next) => {
   } catch (err) {
     if (err.name === "ValidationError") {
       next(new BadRequestError(err.message));
+    } else if (err instanceof NotFoundError) {
+      next(err);
     } else {
       next(new ServerError("Internal server error"));
     }

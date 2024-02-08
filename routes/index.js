@@ -11,7 +11,7 @@ const {
 } = require("../middlewares/validation");
 
 router.use("/users", authMiddleware, userRoutes);
-router.use("/items", authMiddleware, clothingItemRoutes);
+router.use("/items", clothingItemRoutes);
 
 // Import necessary controllers
 const { login, createUser } = require("../controllers/users"); // Assuming the functions are in this location

@@ -53,7 +53,9 @@ exports.deleteItem = async (req, res, next) => {
     await item.remove();
     res.json({ message: "Item removed" });
   } catch (err) {
-    if (err.name === "CastError") {
+    if (err instanceof NotFoundError) {
+      next(err);
+    } else if (err.name === "CastError") {
       next(new BadRequestError("Incorrect item ID format"));
     } else {
       next(new ServerError("Error deleting item"));
@@ -73,7 +75,9 @@ exports.likeItem = async (req, res, next) => {
     }
     res.json(item);
   } catch (err) {
-    if (err.name === "CastError") {
+    if (err instanceof NotFoundError) {
+      next(err);
+    } else if (err.name === "CastError") {
       next(new BadRequestError("Invalid item ID format"));
     } else {
       next(new ServerError("Error liking item"));
@@ -93,7 +97,9 @@ exports.dislikeItem = async (req, res, next) => {
     }
     res.json(item);
   } catch (err) {
-    if (err.name === "CastError") {
+    if (err instanceof NotFoundError) {
+      next(err);
+    } else if (err.name === "CastError") {
       next(new BadRequestError("Incorrect item ID format"));
     } else {
       next(new ServerError("Error unliking item"));
