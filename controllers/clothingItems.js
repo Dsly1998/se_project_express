@@ -34,7 +34,8 @@ exports.createItem = async (req, res, next) => {
     if (err.name === "ValidationError") {
       next(new BadRequestError(err.message));
     } else {
-      next(new ServerError("Error creating item"));
+      // Pass the original error to the next middleware
+      next(err);
     }
   }
 };
@@ -53,12 +54,14 @@ exports.deleteItem = async (req, res, next) => {
     await item.remove();
     res.json({ message: "Item removed" });
   } catch (err) {
-    if (err instanceof NotFoundError) {
+    if (err instanceof NotFoundError || err instanceof ForbiddenError) {
+      // Pass specific errors directly to the next middleware
       next(err);
     } else if (err.name === "CastError") {
       next(new BadRequestError("Incorrect item ID format"));
     } else {
-      next(new ServerError("Error deleting item"));
+      // Pass other types of errors to the next middleware
+      next(err);
     }
   }
 };

@@ -31,7 +31,7 @@ exports.createUser = async (req, res, next) => {
     } else if (err.name === "ValidationError") {
       next(new BadRequestError(err.message));
     } else {
-      next(new ServerError("Server Error"));
+      next(err);
     }
   }
 };
@@ -97,7 +97,7 @@ exports.updateCurrentUser = async (req, res, next) => {
     } else if (err instanceof NotFoundError) {
       next(err);
     } else {
-      next(new ServerError("Internal server error"));
+      next(err);
     }
   }
 };
